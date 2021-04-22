@@ -1,0 +1,107 @@
+{
+  "ruleChain": {
+    "additionalInfo": {
+      "description": ""
+    },
+    "name": "Telegram",
+    "firstRuleNodeId": null,
+    "root": false,
+    "debugMode": false,
+    "configuration": null
+  },
+  "metadata": {
+    "firstNodeIndex": 1,
+    "nodes": [
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 428,
+          "layoutY": 247
+        },
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Co2 a metadata",
+        "debugMode": false,
+        "configuration": {
+          "jsScript": "metadata.co2_ultimo=msg.co2;\nreturn {msg: msg, metadata: metadata, msgType: msgType};"
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 272,
+          "layoutY": 149
+        },
+        "type": "org.thingsboard.rule.engine.filter.TbJsFilterNode",
+        "name": "Co2",
+        "debugMode": false,
+        "configuration": {
+          "jsScript": "return msg.co2 >= 700;"
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 501,
+          "layoutY": 38
+        },
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Mensaje Telegram",
+        "debugMode": false,
+        "configuration": {
+          "jsScript": "var newMsg ={};\n metadata.co2=msg.co2;\n newMsg.text = \" NIVEL ALTO DE CO2[\" + metadata.deviceName + \"](\"+ msg.co2 + \" ppm)\";\n newMsg.chat_id = TUIDCHAT; //has to be replaced by the actual chat id\n return {msg: newMsg, metadata: metadata, msgType: msgType};"
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1031,
+          "layoutY": 140
+        },
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "Enviar Mensaje a Telegram",
+        "debugMode": false,
+        "configuration": {
+          "restEndpointUrlPattern": "https://api.telegram.org/TOKENBOT/sendMessage",
+          "requestMethod": "POST",
+          "useSimpleClientHttpFactory": false,
+          "enableProxy": false,
+          "useSystemProxyProperties": false,
+          "proxyScheme": null,
+          "proxyHost": null,
+          "proxyPort": 0,
+          "proxyUser": null,
+          "proxyPassword": null,
+          "readTimeoutMs": 0,
+          "maxParallelRequestsCount": 0,
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "useRedisQueueForMsgPersistence": false,
+          "trimQueue": false,
+          "maxQueueSize": 0,
+          "credentials": {
+            "type": "anonymous"
+          }
+        }
+      }
+    ],
+    "connections": [
+      {
+        "fromIndex": 1,
+        "toIndex": 0,
+        "type": "True"
+      },
+      {
+        "fromIndex": 1,
+        "toIndex": 2,
+        "type": "True"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 3,
+        "type": "Success"
+      }
+    ],
+    "ruleChainConnections": null
+  }
+}
